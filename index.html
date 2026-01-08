@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dark Tools Hub</title>
+<style>
+body {
+  margin:0;
+  background:#0e0f11;
+  color:#e5f5ef;
+  font-family:sans-serif;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:10px;
+  overscroll-behavior: contain;
+}
+h1 { color:#6ee7b7; font-size:1.6em; margin-bottom:8px; }
+
+nav {
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:8px;
+}
+nav button {
+  background:#1a1c20;
+  color:#6ee7b7;
+  border:none;
+  padding:10px 14px;
+  border-radius:10px;
+  font-size:1em;
+  transition:0.2s;
+}
+nav button:hover { background:#6ee7b7; color:#0e0f11; }
+
+section {
+  display:none;
+  width:100%;
+  max-width:400px;
+  background:#1a1c20;
+  padding:15px;
+  border-radius:12px;
+  margin-top:10px;
+}
+section.active { display:block; }
+
+canvas {
+  width:100%;
+  height:auto;
+  border-radius:10px;
+  background:#2c2f36;
+  touch-action:none;
+}
+
+/* --- Volume Slider --- */
+input[type=range] {
+  width:100%;
+  height:8px;
+  -webkit-appearance:none;
+  appearance:none;
+  background:#1a1c20;
+  border-radius:5px;
+  outline:none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance:none;
+  width:22px;
+  height:22px;
+  border-radius:50%;
+  background:#6ee7b7;
+  border:2px solid #000;
+  margin-top:-7px;
+  transition:background .3s;
+}
+input[type=range]::-webkit-slider-thumb:hover {
+  background:#34d399;
+}
+
+/* --- Buttons --- */
+button.action, .mute-btn, .control-btn {
+  background:#1a1c20;
+  color:#6ee7b7;
+  border:none;
+  padding:10px 14px;
+  border-radius:10px;
+  margin:5px;
+  font-size:1.2em;
+  transition:0.2s;
+}
+button.action:hover, .mute-btn:hover, .control-btn:hover {
+  background:#6ee7b7;
+  color:#0e0f11;
+}
+.controls {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  margin-top:8px;
+}
+.controls div { display:flex; gap:8px; }
+
+/* --- Switch --- */
+.switch {
+  position:relative;
+  display:inline-block;
+  width:60px;
+  height:34px;
+}
+.switch input { opacity:0; width:0; height:0; }
+.slider {
+  position:absolute;
+  cursor:pointer;
+  top:0; left:0; right:0; bottom:0;
+  background-color:#000;
+  transition:0.4s;
+  border-radius:34px;
+}
+.slider:before {
+  position:absolute;
+  content:"";
+  height:26px;
+  width:26px;
+  left:4px;
+  bottom:4px;
+  background-color:#6ee7b7;
+  transition:0.4s;
+  border-radius:50%;
+}
+input:checked + .slider {
+  background-color:#6ee7b7;
+  box-shadow:0 0 12px #34d399;
+}
+input:checked + .slider:before {
+  transform:translateX(26px);
+  background-color:#0e0f11;
+}
+
+/* --- Tic Tac Toe --- */
+#board {
+  display:grid;
+  grid-template-columns:repeat(3, 100px);
+  grid-template-rows:repeat(3, 100px);
+  gap:6px;
+  justify-content:center;
+  margin-top:10px;
+}
+.cell {
+  background:#2c2f36;
+  color:#6ee7b7;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:2.5em;
+  border-radius:10px;
+  user-select:none;
+  transition:0.2s;
+}
+.cell:active { background:#34d399; color:#0e0f11; }
+</style>
+</head>
+<body>
+<h1>⚡ Dark Tools Hub</h1>
+
+<nav>
+  <button onclick="show('volume')">🎚 Volume</button>
+  <button onclick="show('switch')">🔘 Switch</button>
+  <button onclick="show('snake')">🐍 Snake</button>
+  <button onclick="show('draw')">🎨 Draw</button>
+  <button onclick="show('tictac')">❌⭕ Tic Tac Toe</button>
+</nav>
+
+<!-- Volume -->
+<section id="volume" class="active">
+  <h2>🎚 Volume</h2>
+  <input type="range" min="0" max="100" value="50" id="volumeSlider">
+  <button class="mute-btn" id="muteBtn">🔊</button>
+  <p id="volumeValue">Volume: 50%</p>
+</section>
+
+<!-- Switch -->
+<section id="switch">
+  <h2>🔘 On / Off Switch / Button Game</h2>
+  <label class="switch">
+    <input type="checkbox" id="toggle">
+    <span class="slider"></span>
+  </label>
+  <p id="switchText">Off</p>
+</section>
+
+<!-- Snake -->
+<section id="snake">
+  <h2>🐍 Snake Game</h2>
+  <canvas id="snakeCanvas" width="300" height="300"></canvas>
+  <div class="controls">
+    <button class="control-btn" onclick="setDir(0,-1)">⬆️</button>
+    <div>
+      <button class="control-btn" onclick="setDir(-1,0)">⬅️</button>
+      <button class="control-btn" onclick="setDir(1,0)">➡️</button>
+    </div>
+    <button class="control-btn" onclick="setDir(0,1)">⬇️</button>
+  </div>
+</section>
+
+<!-- Drawing -->
+<section id="draw">
+  <h2>🎨 Drawing Panel</h2>
+  <canvas id="drawCanvas" width="300" height="300"></canvas>
+  <div>
+    <input type="color" id="colorPicker" value="#6ee7b7">
+    <input type="range" id="sizeSlider" min="2" max="30" value="6">
+    <button class="action" id="clearBtn">Clear</button>
+  </div>
+</section>
+
+<!-- Tic Tac Toe -->
+<section id="tictac">
+  <h2>❌⭕ Tic Tac Toe ( Vs Bot )</h2>
+  <div id="board"></div>
+  <p id="status">Your turn: X</p>
+  <button class="action" id="resetTic">Restart</button>
+</section>
+
+<script>
+function show(id){
+  document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// Volume
+const volume=document.getElementById('volumeSlider');
+const volumeValue=document.getElementById('volumeValue');
+const muteBtn=document.getElementById('muteBtn');
+let muted=false, prevVolume=50;
+volume.oninput=()=>{ if(!muted){ prevVolume=volume.value; volumeValue.textContent="Volume: "+volume.value+"%";}};
+muteBtn.onclick=()=>{
+  muted=!muted;
+  if(muted){ prevVolume=volume.value; volume.value=0; volumeValue.textContent="Muted 🔇"; muteBtn.textContent="🔇";}
+  else { volume.value=prevVolume; volumeValue.textContent="Volume: "+prevVolume+"%"; muteBtn.textContent="🔊";}
+};
+
+// Switch
+const toggle=document.getElementById('toggle');
+const switchText=document.getElementById('switchText');
+toggle.onchange=()=>switchText.textContent=toggle.checked?"On":"Off";
+
+// Snake
+const canvas=document.getElementById('snakeCanvas');
+const ctx=canvas.getContext('2d');
+const grid=15;
+let snake=[{x:10,y:10}],dx=1,dy=0,apple={x:5,y:5};
+function drawSnake(){
+  ctx.fillStyle="#0e0f11";ctx.fillRect(0,0,300,300);
+  ctx.fillStyle="#6ee7b7";snake.forEach(s=>ctx.fillRect(s.x*grid,s.y*grid,grid-1,grid-1));
+  ctx.fillStyle="#ff6b6b";ctx.fillRect(apple.x*grid,apple.y*grid,grid-1,grid-1);
+}
+function updateSnake(){
+  const head={x:snake[0].x+dx,y:snake[0].y+dy};
+  snake.unshift(head);
+  if(head.x==apple.x&&head.y==apple.y){ apple={x:Math.floor(Math.random()*20),y:Math.floor(Math.random()*20)};}
+  else snake.pop();
+  if(head.x<0||head.x>=20||head.y<0||head.y>=20||snake.slice(1).some(s=>s.x==head.x&&s.y==head.y)){
+    snake=[{x:10,y:10}];dx=1;dy=0;
+  }
+  drawSnake();
+}
+function setDir(x,y){ if(x!==-dx||y!==-dy){dx=x;dy=y;}}
+document.addEventListener('keydown',e=>{
+  if(e.key==="ArrowUp")setDir(0,-1);
+  if(e.key==="ArrowDown")setDir(0,1);
+  if(e.key==="ArrowLeft")setDir(-1,0);
+  if(e.key==="ArrowRight")setDir(1,0);
+});
+setInterval(updateSnake,150);
+let startX=0,startY=0;
+canvas.addEventListener('touchstart',e=>{startX=e.touches[0].clientX;startY=e.touches[0].clientY;});
+canvas.addEventListener('touchend',e=>{
+  const endX=e.changedTouches[0].clientX;const endY=e.changedTouches[0].clientY;
+  const dx=endX-startX,dy=endY-startY;
+  if(Math.abs(dx)>Math.abs(dy)){ if(dx>30)setDir(1,0); else if(dx<-30)setDir(-1,0);}
+  else { if(dy>30)setDir(0,1); else if(dy<-30)setDir(0,-1);}
+});
+
+// Drawing
+const drawCanvas=document.getElementById('drawCanvas');
+const dctx=drawCanvas.getContext('2d');
+let drawing=false,lastX,lastY,color="#6ee7b7",size=6;
+document.getElementById('colorPicker').oninput=e=>color=e.target.value;
+document.getElementById('sizeSlider').oninput=e=>size=e.target.value;
+function getPos(e){const r=drawCanvas.getBoundingClientRect();return e.touches?{x:e.touches[0].clientX-r.left,y:e.touches[0].clientY-r.top}:{x:e.offsetX,y:e.offsetY};}
+drawCanvas.addEventListener('mousedown',e=>{drawing=true;[lastX,lastY]=[e.offsetX,e.offsetY];});
+drawCanvas.addEventListener('mousemove',e=>{if(!drawing)return;dctx.strokeStyle=color;dctx.lineWidth=size;dctx.lineCap='round';dctx.beginPath();dctx.moveTo(lastX,lastY);dctx.lineTo(e.offsetX,e.offsetY);dctx.stroke();[lastX,lastY]=[e.offsetX,e.offsetY];});
+drawCanvas.addEventListener('mouseup',()=>drawing=false);
+drawCanvas.addEventListener('touchstart',e=>{drawing=true;const p=getPos(e);[lastX,lastY]=[p.x,p.y];});
+drawCanvas.addEventListener('touchmove',e=>{e.preventDefault();if(!drawing)return;const p=getPos(e);dctx.strokeStyle=color;dctx.lineWidth=size;dctx.lineCap='round';dctx.beginPath();dctx.moveTo(lastX,lastY);dctx.lineTo(p.x,p.y);dctx.stroke();[lastX,lastY]=[p.x,p.y];},{passive:false});
+drawCanvas.addEventListener('touchend',()=>drawing=false);
+document.getElementById('clearBtn').onclick=()=>dctx.clearRect(0,0,300,300);
+
+// Tic Tac Toe with bot
+const board=document.getElementById('board');
+const status=document.getElementById('status');
+const reset=document.getElementById('resetTic');
+let cells=Array(9).fill(null),turn='X',gameOver=false;
+for(let i=0;i<9;i++){
+  const cell=document.createElement('div');
+  cell.classList.add('cell');
+  cell.onclick=()=>makeMove(i);
+  board.appendChild(cell);
+}
+function makeMove(i){
+  if(!cells[i]&&!gameOver){
+    cells[i]=turn;
+    board.children[i].textContent=turn;
+    if(checkWin(turn)){
+      status.textContent=`${turn} Wins ! 🎉`;
+      gameOver=true; return;
+    }
+    if(cells.every(c=>c)){ status.textContent="Tie!"; gameOver=true; return; }
+    turn='O';
+    status.textContent="Bot's turn...";
+    setTimeout(botMove,500);
+  }
+}
+function botMove(){
+  if(gameOver)return;
+  let empty=cells.map((c,i)=>c?null:i).filter(i=>i!==null);
+  if(empty.length===0){ status.textContent="Tie!"; gameOver=true; return; }
+  let move=empty[Math.floor(Math.random()*empty.length)];
+  cells[move]='O';
+  board.children[move].textContent='O';
+  if(checkWin('O')){ status.textContent="Bot Wins ! 🤖"; gameOver=true; return; }
+  if(cells.every(c=>c)){ status.textContent="Tie!"; gameOver=true; return; }
+  turn='X';
+  status.textContent="Your turn: X";
+}
+function checkWin(p){
+  const wins=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+  return wins.some(([a,b,c])=>cells[a]===p&&cells[b]===p&&cells[c]===p);
+}
+reset.onclick=()=>{
+  cells.fill(null);gameOver=false;turn='X';
+  [...board.children].forEach(c=>{c.textContent='';c.style.background='#2c2f36';});
+  status.textContent="Your turn: X";
+};
+</script>
+</body>
+</html>
+

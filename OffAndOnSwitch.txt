@@ -1,0 +1,146 @@
+<nav><a href="index.html">🏠 Home</a></nav>
+
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Dark Switch Toggle</title>
+<style>
+  :root{
+    --bg: #0e0f11;
+    --card: #1a1c20;
+    --accent: #6ee7b7;
+    --track: #2c2f36;
+    --transition: 0.25s ease;
+  }
+
+  body{
+    margin: 0;
+    background: var(--bg);
+    color: #e5f5ef;
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+  }
+
+  .switch-container{
+    background: var(--card);
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+    padding: 18px 22px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 90%;
+    max-width: 360px;
+    justify-content: space-between;
+  }
+
+  .switch-label{
+    font-size: 1rem;
+    color: #cfe8df;
+    user-select: none;
+  }
+
+  /* Switch body */
+  .switch{
+    position: relative;
+    width: 60px;
+    height: 32px;
+    background: var(--track);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background var(--transition);
+    flex-shrink: 0;
+  }
+
+  .switch::before{
+    content: "";
+    position: absolute;
+    width: 28px;
+    height: 28px;
+    top: 2px;
+    left: 2px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 6px rgba(0,0,0,0.5);
+    transition: left var(--transition), background var(--transition);
+  }
+
+  /* Active (ON) */
+  .switch.active{
+    background: var(--accent);
+  }
+  .switch.active::before{
+    left: 30px;
+    background: #e8fff5;
+  }
+
+  /* Touch feedback */
+  .switch:active::before{
+    transform: scale(1.08);
+  }
+
+  /* Smaller variant for tiny screens */
+  @media (max-width:480px){
+    .switch{
+      width: 52px;
+      height: 28px;
+    }
+    .switch::before{
+      width: 24px;
+      height: 24px;
+    }
+    .switch.active::before{
+      left: 26px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="switch-container">
+  <span class="switch-label" id="switchLabel">OFF</span>
+  <div class="switch" id="toggleSwitch" role="switch" aria-checked="false" tabindex="0"></div>
+</div>
+
+<script>
+const toggle = document.getElementById('toggleSwitch');
+const label = document.getElementById('switchLabel');
+let isOn = false;
+
+function updateSwitch(){
+  if(isOn){
+    toggle.classList.add('active');
+    toggle.setAttribute('aria-checked','true');
+    label.textContent = 'ON';
+  } else {
+    toggle.classList.remove('active');
+    toggle.setAttribute('aria-checked','false');
+    label.textContent = 'OFF';
+  }
+}
+
+// Click or tap
+toggle.addEventListener('click', ()=>{
+  isOn = !isOn;
+  updateSwitch();
+});
+
+// Keyboard toggle (Space/Enter)
+toggle.addEventListener('keydown', (e)=>{
+  if(e.key === ' ' || e.key === 'Enter'){
+    e.preventDefault();
+    isOn = !isOn;
+    updateSwitch();
+  }
+});
+
+updateSwitch();
+</script>
+
+</body>
+</html>

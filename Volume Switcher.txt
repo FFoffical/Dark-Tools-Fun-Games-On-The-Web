@@ -1,0 +1,164 @@
+<nav><a href="index.html">🏠 Home</a></nav>
+
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Mobile Volume Slider</title>
+<style>
+  :root{
+    --bg: #0e0f11;
+    --card: #1a1c20;
+    --accent: #6ee7b7;
+    --track: #2c2f36;
+    --thumb-size: 22px;
+    --transition: 0.15s ease;
+  }
+
+  body{
+    margin: 0;
+    background: var(--bg);
+    color: #e5f5ef;
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+  }
+
+  .volume-container{
+    background: var(--card);
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+    display: flex;
+    align-items: center;
+    padding: 14px 18px;
+    gap: 12px;
+    width: 90%;
+    max-width: 360px;
+  }
+
+  button{
+    background: none;
+    border: none;
+    color: var(--accent);
+    font-size: 1.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background var(--transition);
+  }
+  button:active{ background: rgba(110,231,183,0.12); }
+
+  input[type="range"]{
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 8px;
+    border-radius: 10px;
+    background: linear-gradient(90deg, var(--accent) 50%, var(--track) 50%);
+    outline: none;
+    transition: background var(--transition);
+  }
+
+  input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance: none;
+    width: var(--thumb-size);
+    height: var(--thumb-size);
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 6px rgba(0,0,0,0.5);
+    cursor: pointer;
+    transition: transform var(--transition);
+  }
+
+  input[type="range"]:active::-webkit-slider-thumb{
+    transform: scale(1.1);
+  }
+
+  /* Firefox */
+  input[type="range"]::-moz-range-thumb{
+    width: var(--thumb-size);
+    height: var(--thumb-size);
+    border: none;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 6px rgba(0,0,0,0.5);
+  }
+
+  /* Value text (optional for mobile) */
+  .vol-value{
+    font-size: 0.9rem;
+    color: #c3d7ce;
+    width: 36px;
+    text-align: right;
+  }
+
+  /* Slightly larger touch targets for small screens */
+  @media (max-width: 480px){
+    .volume-container{
+      padding: 12px;
+      gap: 10px;
+    }
+    input[type="range"]{
+      height: 10px;
+    }
+    .vol-value{ display: none; } /* hide value for cleaner look on very small phones */
+  }
+</style>
+</head>
+<body>
+
+<div class="volume-container">
+  <button id="muteBtn" aria-label="Mute/unmute">
+    🔊
+  </button>
+  <input type="range" id="volume" min="0" max="100" value="50" aria-label="Volume slider">
+  <div class="vol-value" id="volValue">50%</div>
+</div>
+
+<script>
+const slider = document.getElementById('volume');
+const muteBtn = document.getElementById('muteBtn');
+const valueLabel = document.getElementById('volValue');
+let lastVolume = 50;
+let muted = false;
+
+// update track fill color
+function updateSlider(){
+  const val = slider.value;
+  slider.style.background = `linear-gradient(90deg, var(--accent) ${val}%, var(--track) ${val}%)`;
+  valueLabel.textContent = `${val}%`;
+  if(val == 0){
+    muteBtn.textContent = '🔇';
+    muted = true;
+  } else {
+    muteBtn.textContent = '🔊';
+    muted = false;
+  }
+}
+
+slider.addEventListener('input', updateSlider);
+
+// mute/unmute toggle
+muteBtn.addEventListener('click', ()=>{
+  if(muted || slider.value == 0){
+    slider.value = lastVolume || 50;
+    muted = false;
+  } else {
+    lastVolume = slider.value;
+    slider.value = 0;
+    muted = true;
+  }
+  updateSlider();
+});
+
+updateSlider();
+</script>
+
+</body>
+</html>
